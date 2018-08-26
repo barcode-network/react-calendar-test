@@ -8,6 +8,7 @@ import axios from 'axios'
 
 
 import logo from './logo.svg';
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import './App.css';
 
 moment.locale('en-GB');
@@ -15,33 +16,39 @@ BigCalendar.momentLocalizer(moment);
 
 class App extends Component {
 
+  
+
   constructor(props) {
     super(props)
 
     this.state = {
       cal_events: [
-
+        //State is updated via componentDidMount
       ],
     }
 
   }
 
+  convertDate = (date) => {
+    return moment.utc(date).toDate()
+  }
+
   componentDidMount() {
 
-    let self = this
 
     axios.get('http://localhost:3001/events')
-      .then(function (response) {
+      .then(response => {
         console.log(response.data);
-        var appointments = response.data;
+        let appointments = response.data;
         
-        for (var i = 0; i < appointments.length; i++) {
-          appointments[i].start = moment.utc(appointments[i].start).toDate();
-          appointments[i].end = moment.utc(appointments[i].end).toDate();
-          // console.log(appointments[i])
+        for (let i = 0; i < appointments.length; i++) {
+          
+          appointments[i].start = this.convertDate(appointments[i].start)
+          appointments[i].end = this.convertDate(appointments[i].end)
+          
         }
 
-        self.setState({
+        this.setState({
           cal_events:appointments
         })
   
@@ -56,23 +63,19 @@ class App extends Component {
 
     const { cal_events } = this.state
 
-    console.log(cal_events)
-
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Level-up Larry</h1>
+          <h1 className="App-title">React Calendar</h1>
         </header>
         <div style={{ height: 700 }}>
           <BigCalendar
             events={cal_events}
-            step={60}
-            view='week'
-            views={['week','day']}
-            min={new Date(2018, 0, 1, 8, 0)} // 8.00 AM
-            max={new Date(2018, 0, 1, 17, 0)} // Max will be 6.00 PM!
-            date={new Date(2018, 0, 1)}
+            step={30}
+            defaultView='week'
+            views={['month','week','day']}
+            defaultDate={new Date()}
           />
         </div>
       </div>
